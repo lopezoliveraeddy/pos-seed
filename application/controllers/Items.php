@@ -361,128 +361,140 @@ class Items extends Secure_Controller
 
 	public function save($item_id = -1)
 	{
-		$upload_success = $this->_handle_image_upload();
-		$upload_data = $this->upload->data();
-
-		//Save item data
-		$item_data = array(
-			'name' => $this->input->post('name'),
-			'description' => $this->input->post('description'),
-			'category' => $this->input->post('category'),
-			'item_type' => $this->input->post('item_type') == NULL ? ITEM : $this->input->post('item_type'),
-			'stock_type' => $this->input->post('stock_type') == NULL ? HAS_STOCK : $this->input->post('stock_type'),
-			'supplier_id' => $this->input->post('supplier_id') == '' ? NULL : $this->input->post('supplier_id'),
-			'item_number' => $this->input->post('item_number') == '' ? NULL : $this->input->post('item_number'),
-			'cost_price' => parse_decimals($this->input->post('cost_price')),
-			'unit_price' => parse_decimals($this->input->post('unit_price')),
-			'reorder_level' => parse_decimals($this->input->post('reorder_level')),
-			'receiving_quantity' => parse_decimals($this->input->post('receiving_quantity')),
-			'allow_alt_description' => $this->input->post('allow_alt_description') != NULL,
-			'is_serialized' => $this->input->post('is_serialized') != NULL,
-			'deleted' => $this->input->post('is_deleted') != NULL,
-			'custom1' => $this->input->post('custom1') == NULL ? '' : $this->input->post('custom1'),
-			'custom2' => $this->input->post('custom2') == NULL ? '' : $this->input->post('custom2'),
-			'custom3' => $this->input->post('custom3') == NULL ? '' : $this->input->post('custom3'),
-			'custom4' => $this->input->post('custom4') == NULL ? '' : $this->input->post('custom4'),
-			'custom5' => $this->input->post('custom5') == NULL ? '' : $this->input->post('custom5'),
-			'custom6' => $this->input->post('custom6') == NULL ? '' : $this->input->post('custom6'),
-			'custom7' => $this->input->post('custom7') == NULL ? '' : $this->input->post('custom7'),
-			'custom8' => $this->input->post('custom8') == NULL ? '' : $this->input->post('custom8'),
-			'custom9' => $this->input->post('custom9') == NULL ? '' : $this->input->post('custom9'),
-			'custom10' => $this->input->post('custom10') == NULL ? '' : $this->input->post('custom10')
-		);
-
-		$x = $this->input->post('tax_category_id');
-		if(!isset($x))
-		{
-			$item_data['tax_category_id'] = '';
-		}
-		else
-		{
-			$item_data['tax_category_id'] = $this->input->post('tax_category_id');
-		}
-		
-		if(!empty($upload_data['orig_name']))
-		{
-			// XSS file image sanity check
-			if($this->xss_clean($upload_data['raw_name'], TRUE) === TRUE)
-			{
-				$item_data['pic_filename'] = $upload_data['raw_name'];
+		$i = 0;
+		foreach($this->input->post('item_number') as $input ){
+			if ($i == 0){
+				$upload_success = $this->_handle_image_upload();
+				$upload_data = $this->upload->data();
+				$i+=1;
+			}else{
+				$upload_success = TRUE;
+				$item_id = -1;
 			}
-		}
-		
-		$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
-		$cur_item_info = $this->Item->get_info($item_id);
-		
-		if($this->Item->save($item_data, $item_id))
-		{
-			$success = TRUE;
-			$new_item = FALSE;
-			//New item
-			if($item_id == -1)
+			//Save item data
+			$item_data = array(
+				'name' => $this->input->post('name'),
+				'description' => $this->input->post('description'),
+				'category' => $this->input->post('category'),
+				'item_type' => $this->input->post('item_type') == NULL ? ITEM : $this->input->post('item_type'),
+				'stock_type' => $this->input->post('stock_type') == NULL ? HAS_STOCK : $this->input->post('stock_type'),
+				'supplier_id' => $this->input->post('supplier_id') == '' ? NULL : $this->input->post('supplier_id'),
+				'item_number' => $input == '' ? NULL : $input,
+				'cost_price' => parse_decimals($this->input->post('cost_price')),
+				'unit_price' => parse_decimals($this->input->post('unit_price')),
+				'reorder_level' => parse_decimals($this->input->post('reorder_level')),
+				'receiving_quantity' => parse_decimals($this->input->post('receiving_quantity')),
+				'allow_alt_description' => $this->input->post('allow_alt_description') != NULL,
+				'is_serialized' => $this->input->post('is_serialized') != NULL,
+				'deleted' => $this->input->post('is_deleted') != NULL,
+				'custom1' => $this->input->post('custom1') == NULL ? '' : $this->input->post('custom1'),
+				'custom2' => $this->input->post('custom2') == NULL ? '' : $this->input->post('custom2'),
+				'custom3' => $this->input->post('custom3') == NULL ? '' : $this->input->post('custom3'),
+				'custom4' => $this->input->post('custom4') == NULL ? '' : $this->input->post('custom4'),
+				'custom5' => $this->input->post('custom5') == NULL ? '' : $this->input->post('custom5'),
+				'custom6' => $this->input->post('custom6') == NULL ? '' : $this->input->post('custom6'),
+				'custom7' => $this->input->post('custom7') == NULL ? '' : $this->input->post('custom7'),
+				'custom8' => $this->input->post('custom8') == NULL ? '' : $this->input->post('custom8'),
+				'custom9' => $this->input->post('custom9') == NULL ? '' : $this->input->post('custom9'),
+				'custom10' => $this->input->post('custom10') == NULL ? '' : $this->input->post('custom10')
+			);
+
+			$x = $this->input->post('tax_category_id');
+			if(!isset($x))
 			{
-				$item_id = $item_data['item_id'];
-				$new_item = TRUE;
-			}
-			
-			$items_taxes_data = array();
-			$tax_names = $this->input->post('tax_names');
-			$tax_percents = $this->input->post('tax_percents');
-			$count = count($tax_percents);
-			for ($k = 0; $k < $count; ++$k)
-			{
-				$tax_percentage = parse_decimals($tax_percents[$k]);
-				if(is_numeric($tax_percentage))
-				{
-					$items_taxes_data[] = array('name' => $tax_names[$k], 'percent' => $tax_percentage);
-				}
-			}
-			$success &= $this->Item_taxes->save($items_taxes_data, $item_id);
-
-			//Save item quantity
-			$stock_locations = $this->Stock_location->get_undeleted_all()->result_array();
-			foreach($stock_locations as $location)
-			{
-				$updated_quantity = parse_decimals($this->input->post('quantity_' . $location['location_id']));
-				$location_detail = array('item_id' => $item_id,
-										'location_id' => $location['location_id'],
-										'quantity' => $updated_quantity);
-				$item_quantity = $this->Item_quantity->get_item_quantity($item_id, $location['location_id']);
-				if($item_quantity->quantity != $updated_quantity || $new_item)
-				{
-					$success &= $this->Item_quantity->save($location_detail, $item_id, $location['location_id']);
-
-					$inv_data = array(
-						'trans_date' => date('Y-m-d H:i:s'),
-						'trans_items' => $item_id,
-						'trans_user' => $employee_id,
-						'trans_location' => $location['location_id'],
-						'trans_comment' => $this->lang->line('items_manually_editing_of_quantity'),
-						'trans_inventory' => $updated_quantity - $item_quantity->quantity
-					);
-
-					$success &= $this->Inventory->insert($inv_data);
-				}
-			}
-
-			if($success && $upload_success)
-			{
-				$message = $this->xss_clean($this->lang->line('items_successful_' . ($new_item ? 'adding' : 'updating')) . ' ' . $item_data['name']);
-
-				echo json_encode(array('success' => TRUE, 'message' => $message, 'id' => $item_id));
+				$item_data['tax_category_id'] = '';
 			}
 			else
 			{
-				$message = $this->xss_clean($upload_success ? $this->lang->line('items_error_adding_updating') . ' ' . $item_data['name'] : strip_tags($this->upload->display_errors()));
-
-				echo json_encode(array('success' => FALSE, 'message' => $message, 'id' => $item_id));
+				$item_data['tax_category_id'] = $this->input->post('tax_category_id');
 			}
-		}
-		else // failure
-		{
-			$message = $this->xss_clean($this->lang->line('items_error_adding_updating') . ' ' . $item_data['name']);
 			
-			echo json_encode(array('success' => FALSE, 'message' => $message, 'id' => -1));
+			if(!empty($upload_data['orig_name']))
+			{
+				// XSS file image sanity check
+				if($this->xss_clean($upload_data['raw_name'], TRUE) === TRUE)
+				{
+					$item_data['pic_filename'] = $upload_data['raw_name'];
+				}
+			}
+			
+			$employee_id = $this->Employee->get_logged_in_employee_info()->person_id;
+			$cur_item_info = $this->Item->get_info($item_id);
+			
+			if($this->Item->save($item_data, $item_id))
+			{
+				$success = TRUE;
+				$new_item = FALSE;
+				//New item
+				if($item_id == -1)
+				{
+					$item_id = $item_data['item_id'];
+					$new_item = TRUE;
+				}
+				
+				$items_taxes_data = array();
+				$tax_names = $this->input->post('tax_names');
+				$tax_percents = $this->input->post('tax_percents');
+				$count = count($tax_percents);
+				for ($k = 0; $k < $count; ++$k)
+				{
+					$tax_percentage = parse_decimals($tax_percents[$k]);
+					if(is_numeric($tax_percentage))
+					{
+						$items_taxes_data[] = array('name' => $tax_names[$k], 'percent' => $tax_percentage);
+					}
+				}
+				$success &= $this->Item_taxes->save($items_taxes_data, $item_id);
+
+				//Save item quantity
+				$stock_locations = $this->Stock_location->get_undeleted_all()->result_array();
+				foreach($stock_locations as $location)
+				{
+					$updated_quantity = parse_decimals($this->input->post('quantity_' . $location['location_id']));
+					$location_detail = array('item_id' => $item_id,
+											'location_id' => $location['location_id'],
+											'quantity' => $updated_quantity);
+					$item_quantity = $this->Item_quantity->get_item_quantity($item_id, $location['location_id']);
+					if($item_quantity->quantity != $updated_quantity || $new_item)
+					{
+						$success &= $this->Item_quantity->save($location_detail, $item_id, $location['location_id']);
+
+						$inv_data = array(
+							'trans_date' => date('Y-m-d H:i:s'),
+							'trans_items' => $item_id,
+							'trans_user' => $employee_id,
+							'trans_location' => $location['location_id'],
+							'trans_comment' => $this->lang->line('items_manually_editing_of_quantity'),
+							'trans_inventory' => $updated_quantity - $item_quantity->quantity
+						);
+
+						$success &= $this->Inventory->insert($inv_data);
+					}
+				}
+
+				if($success && $upload_success)
+				{
+
+					$message = $this->xss_clean($this->lang->line('items_successful_' . ($new_item ? 'adding' : 'updating')) . ' ' . $item_data['name']);
+
+					echo json_encode(array('success' => TRUE, 'message' => $message, 'id' => $item_id));
+				}
+				else
+				{
+					$message = $this->xss_clean($upload_success ? $this->lang->line('items_error_adding_updating') . ' ' . $item_data['name'] : strip_tags($this->upload->display_errors()));
+
+					echo json_encode(array('success' => FALSE, 'message' => $message, 'id' => $item_id));
+				}
+			}
+			else // failure
+			{	
+				$message = $this->xss_clean($this->lang->line('items_error_adding_updating') . ' ' . $item_data['name']);
+				echo json_encode(array('success' => FALSE, 'message' => $message, 'id' => -1));
+			}
+			
+			$success = FALSE;
+			$upload_success = FALSE;
+			
 		}
 	}
 	
