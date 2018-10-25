@@ -4,19 +4,23 @@
 
 <?php echo form_open('items/save/'.$item_info->item_id, array('id'=>'item_form', 'enctype'=>'multipart/form-data', 'class'=>'form-horizontal')); ?>
 	<fieldset id="item_basic_info">
-		<div class="form-group form-group-sm" id="item_number">
+	<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('items_item_number'), 'item_number', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-8'>
-				<div class="input-group">
+				<div class="input-group" id="product_input">
 					<span class="input-group-addon input-sm"><span class="glyphicon glyphicon-barcode"></span></span>
 					<?php echo form_input(array(
 							'name'=>'item_number[]',
+							'id'=>'item_number',
 							'class'=>'form-control input-sm',
 							'value'=>$item_info->item_number)
 							);?>
 				</div>
+				<div id="other_products" class="row"></div>
 			</div>
+			
 		</div>
+
 		<div id="items_number">
 		</div>
 		<div class="form-group form-group-sm">
@@ -159,7 +163,7 @@
 			</div>
 		</div>
 
-		<div class="form-group form-group-sm">
+		<!--<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('items_tax_1'), 'tax_percent_1', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-4'>
 				<?php echo form_input(array(
@@ -180,9 +184,9 @@
 					<span class="input-group-addon input-sm"><b>%</b></span>
 				</div>
 			</div>
-		</div>
+		</div>-->
 
-		<div class="form-group form-group-sm">
+		<!--<div class="form-group form-group-sm">
 			<?php echo form_label($this->lang->line('items_tax_2'), 'tax_percent_2', array('class'=>'control-label col-xs-3')); ?>
 			<div class='col-xs-4'>
 				<?php echo form_input(array(
@@ -203,7 +207,7 @@
 					<span class="input-group-addon input-sm"><b>%</b></span>
 				</div>
 			</div>
-		</div>
+		</div>-->
 
 		<?php if($customer_sales_tax_enabled) { ?>
 			<div class="form-group form-group-sm">
@@ -358,6 +362,13 @@
 //validation and submit handling
 $(document).ready(function()
 {
+	$("#item_number").keyup(function( event ){
+		var clone = $("#product_input").clone("#item_number");
+		console.log(clone);
+		clone.removeAttr('id');
+		$("#item_number").val('');
+		$("#other_products").append(clone);
+	});
 	$("#new").click(function() {
 		stay_open = true;
 		$("#item_form").submit();
