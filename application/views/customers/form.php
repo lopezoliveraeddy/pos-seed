@@ -41,7 +41,7 @@
 
 				<?php $this->load->view("people/form_basic_info"); ?>
 
-				<div class="form-group form-group-sm">
+				<!--<div class="form-group form-group-sm">
 					<?php echo form_label($this->lang->line('customers_discount'), 'discount_percent', array('class' => 'control-label col-xs-3')); ?>
 					<div class='col-xs-3'>
 						<div class="input-group input-group-sm">
@@ -54,9 +54,9 @@
 							<span class="input-group-addon input-sm"><b>%</b></span>
 						</div>
 					</div>	
-				</div>
+				</div>-->
 
-				<div class="form-group form-group-sm">
+				<!--<div class="form-group form-group-sm">
 					<?php echo form_label($this->lang->line('customers_company_name'), 'company_name', array('class' => 'control-label col-xs-3')); ?>
 					<div class='col-xs-8'>
 						<?php echo form_input(array(
@@ -66,9 +66,9 @@
 								'value'=>$person_info->company_name)
 								); ?>
 					</div>
-				</div>
+				</div>-->
 
-				<div class="form-group form-group-sm">
+				<!--<div class="form-group form-group-sm">
 					<?php echo form_label($this->lang->line('customers_account_number'), 'account_number', array('class' => 'control-label col-xs-3')); ?>
 					<div class='col-xs-4'>
 						<?php echo form_input(array(
@@ -78,7 +78,7 @@
 								'value'=>$person_info->account_number)
 								); ?>
 					</div>
-				</div>
+				</div>-->
 
 				<?php if($this->config->item('customer_reward_enable') == TRUE): ?>
 					<div class="form-group form-group-sm">
@@ -102,12 +102,12 @@
 					</div>
 				<?php endif; ?>
 
-				<div class="form-group form-group-sm">
+				<!--<div class="form-group form-group-sm">
 					<?php echo form_label($this->lang->line('customers_taxable'), 'taxable', array('class' => 'control-label col-xs-3')); ?>
 					<div class='col-xs-1'>
 						<?php echo form_checkbox('taxable', '1', $person_info->taxable == '' ? TRUE : (boolean)$person_info->taxable); ?>
 					</div>
-				</div>
+				</div>-->
 
 				<?php
 				if($customer_sales_tax_enabled)
@@ -148,7 +148,7 @@
 					</div>
 				</div>
 
-				<div class="form-group form-group-sm">
+				<!--<div class="form-group form-group-sm">
 					<?php echo form_label($this->lang->line('customers_employee'), 'employee', array('class'=>'control-label col-xs-3')); ?>
 					<div class='col-xs-8'>
 						<?php echo form_input(array(
@@ -159,7 +159,7 @@
 								'readonly'=>'true')
 								); ?>
 					</div>
-				</div>
+				</div>-->
 
 				<?php echo form_hidden('employee_id', $person_info->employee_id); ?>
 			</fieldset>
